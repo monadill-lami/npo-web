@@ -1,0 +1,264 @@
+{
+  "info": {
+    "name": "NPO API (Local)",
+    "_postman_id": "f4c5db66-24b2-4b8e-9b3a-8f1c1b7ad1aa",
+    "description": "Single-file Postman collection for the NPO backend (posts + transactions).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "adminKey", "value": "changeme-admin-key" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/health" }
+    },
+    {
+      "name": "Posts",
+      "item": [
+        {
+          "name": "Create Post (JSON with imageUrl)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-admin-key", "value": "{{adminKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Welcome\",\n  \"subTitle\": \"Intro\",\n  \"description\": \"Full description of the post...\",\n  \"imageUrl\": \"https://example.com/image.jpg\"\n}"
+            },
+            "url": "{{baseUrl}}/api/create-post"
+          }
+        },
+        {
+          "name": "Create Post (multipart with file)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "x-admin-key", "value": "{{adminKey}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Welcome", "type": "text" },
+                { "key": "subTitle", "value": "Intro", "type": "text" },
+                { "key": "description", "value": "Full description...", "type": "text" },
+                { "key": "image", "type": "file", "src": "" }
+              ]
+            },
+            "url": "{{baseUrl}}/api/create-post"
+          }
+        },
+        {
+          "name": "Edit Post (JSON)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "x-admin-key", "value": "{{adminKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"1\",\n  \"title\": \"Updated Title\",\n  \"description\": \"Updated description\"\n}"
+            },
+            "url": "{{baseUrl}}/api/edit-post_by_id"
+          }
+        },
+        {
+          "name": "Edit Post (multipart with file)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "x-admin-key", "value": "{{adminKey}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "id", "value": "1", "type": "text" },
+                { "key": "title", "value": "Updated Title", "type": "text" },
+                { "key": "image", "type": "file", "src": "" }
+              ]
+            },
+            "url": "{{baseUrl}}/api/edit-post_by_id"
+          }
+        },
+        {
+          "name": "Delete Post (query)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "x-admin-key", "value": "{{adminKey}}" }],
+            "url": "{{baseUrl}}/api/delete-post_by_id?id=1"
+          }
+        },
+        {
+          "name": "Delete Post (JSON body)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "x-admin-key", "value": "{{adminKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"id\": \"1\"\n}" },
+            "url": "{{baseUrl}}/api/delete-post_by_id"
+          }
+        },
+        {
+          "name": "Get All Posts (summary)",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/get_all_posts" }
+        },
+        {
+          "name": "Get Post Full By ID",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/get_post_full_by_id?id=1" }
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Record Txn (public)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alice Donor\",\n  \"number\": \"01700000000\",\n  \"txnId\": \"BKASH123456\",\n  \"amount\": \"500\"\n}"
+            },
+            "url": "{{baseUrl}}/api/rec_txn"
+          }
+        },
+        {
+          "name": "Get Txn Details (filter)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/get_txn_details?name=Alice%20Donor&number=01700000000&txnId=BKASH123456"
+          }
+        },
+        {
+          "name": "Get Full Txn Record (paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/get_full_txn_record?page=1&pageSize=20"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Members",
+      "item": [
+        {
+          "name": "Submit Member Request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "name", "value": "John Doe", "type": "text" },
+                { "key": "fathersName", "value": "Richard Doe", "type": "text" },
+                { "key": "mothersName", "value": "Jane Doe", "type": "text" },
+                { "key": "region", "value": "Dhaka", "type": "text" },
+                { "key": "institution", "value": "Dhaka University", "type": "text" },
+                { "key": "address", "value": "123 Main St, Dhaka", "type": "text" },
+                { "key": "email", "value": "john.doe@example.com", "type": "text" },
+                { "key": "whyJoining", "value": "I want to contribute to the community.", "type": "text" },
+                { "key": "howDidYouFindUs", "value": "From a friend.", "type": "text" },
+                { "key": "hobbies", "value": "Reading, coding", "type": "text" },
+                { "key": "phoneNumber", "value": "01234567890", "type": "text" },
+                { "key": "photo", "type": "file", "src": "" }
+              ]
+            },
+            "url": "{{baseUrl}}/api/submit_member_req"
+          }
+        },
+        {
+          "name": "Get All Member Requests (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "x-admin-key", "value": "{{adminKey}}" }],
+            "url": "{{baseUrl}}/api/get_all_member_reqs?status=pending&page=1&pageSize=10"
+          }
+        },
+        {
+          "name": "Manage Member Request (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "x-admin-key", "value": "{{adminKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"your_request_id\",\n  \"action\": \"approve\"\n}"
+            },
+            "url": "{{baseUrl}}/api/manage_member_req_by_id"
+          }
+        },
+        {
+          "name": "Get All Official Members",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/get_all_official_members?page=1&pageSize=10"
+          }
+        },
+        {
+          "name": "Pin Member as Lead Memeber (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "x-admin-key", "value": "{{adminKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"member_id_to_pin\"\n}"
+            },
+            "url": "{{baseUrl}}/api/pin_member_as_vip_by_id"
+          }
+        },
+        {
+          "name": "Get All Pinned Members",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/get_all_pinned_members?page=1&pageSize=10"
+          }
+        },
+        {
+          "name": "Get Member Info by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/get_member_info_by_id?id=member_id"
+          }
+        },
+        {
+          "name": "Get Pending Request Info by ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "x-admin-key", "value": "{{adminKey}}" }],
+            "url": "{{baseUrl}}/api/get_pending_request_info_by_id?id=request_id"
+          }
+        },
+        {
+          "name": "Delete Member (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "x-admin-key", "value": "{{adminKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"member_id_to_delete\"\n}"
+            },
+            "url": "{{baseUrl}}/api/delete_member"
+          }
+        }
+      ]
+    }
+  ]
+}
