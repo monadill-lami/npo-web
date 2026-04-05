@@ -28,13 +28,32 @@ async function main() {
   }
 
 
-  const allowedOrigins = [
-  "http://localhost:4000",
-  "https://www.futureleadersassembly.org"
-];
+  const allowedOrigins = (
+    process.env.CORS_ALLOWED_ORIGINS
+      ? process.env.CORS_ALLOWED_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
+      : [
+          'http://localhost:4000',
+          'http://localhost:3000',
+          'https://futureleadersassembly.org',
+          'https://www.futureleadersassembly.org',
+        ]
+  );
+
+  const isOriginAllowed = (origin?: string | null) => {
+    if (!origin) return true;
+    if (allowedOrigins.includes(origin)) return true;
+    if (/^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin)) return true;
+    return false;
+  };
   const app = express();
   app.use(requestLogger);
-  app.use(cors({ origin:allowedOrigins , allowedHeaders: ['Content-Type', 'x-admin-key'] }));
+  app.use(cors({
+    origin: (origin, callback) => {
+      if (isOriginAllowed(origin)) return callback(null, true);
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
+    allowedHeaders: ['Content-Type', 'x-admin-key'],
+  }));
   // Parse JSON and form bodies for PATCH/POST/DELETE handlers
   app.use(express.json({ limit: '2mb' }));
   app.use(express.urlencoded({ extended: true }));
