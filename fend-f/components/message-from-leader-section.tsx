@@ -39,7 +39,7 @@ export async function MessageFromLeaderSection() {
 
             <div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground leading-tight mb-6">
-                A Message from the President
+                A Message from the Leaders
               </h2>
 
               <div className="relative">
