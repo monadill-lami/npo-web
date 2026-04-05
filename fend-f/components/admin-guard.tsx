@@ -4,7 +4,8 @@ import type React from "react"
 
 import { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { isAdminAuthenticated } from "@/lib/admin-auth"
+import { clearAdminKey, isAdminAuthenticated } from "@/lib/admin-auth"
+import { verifyAdminAccess } from "@/lib/api"
 import { Loader2 } from "lucide-react"
 
 export function AdminGuard({ children }: { children: React.ReactNode }) {
@@ -13,11 +14,32 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   const [isChecking, setIsChecking] = useState(true)
 
   useEffect(() => {
-    // Check if user is authenticated
-    if (!isAdminAuthenticated()) {
-      router.push("/admin-dash")
-    } else {
+    let cancelled = false
+
+    const verify = async () => {
+      setIsChecking(true)
+
+      if (!isAdminAuthenticated()) {
+        router.replace("/admin-dash")
+        return
+      }
+
+      const check = await verifyAdminAccess()
+      if (cancelled) return
+
+      if (!check.ok && check.unauthorized) {
+        clearAdminKey()
+        router.replace("/admin-dash")
+        return
+      }
+
       setIsChecking(false)
+    }
+
+    verify()
+
+    return () => {
+      cancelled = true
     }
   }, [router, pathname])
 

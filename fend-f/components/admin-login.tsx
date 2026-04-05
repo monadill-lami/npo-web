@@ -9,9 +9,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Lock, Loader2 } from "lucide-react"
-import { setAdminKey } from "@/lib/admin-auth"
+import { clearAdminKey, setAdminKey } from "@/lib/admin-auth"
 import { useToast } from "@/hooks/use-toast"
-import { API_BASE } from "@/lib/api"
+import { verifyAdminAccess } from "@/lib/api"
 
 export function AdminLogin() {
   const router = useRouter()
@@ -31,30 +31,27 @@ export function AdminLogin() {
 
     setIsLoading(true)
 
-    // Store the key and let the backend verify it on API calls
-    setAdminKey(adminKey)
+    const normalizedKey = adminKey.trim()
 
-    // Test the key by calling an admin-only endpoint
     try {
-      const response = await fetch(`${API_BASE}/get_all_member_reqs?status=pending&page=1&pageSize=1`, {
-        headers: {
-          "x-admin-key": adminKey,
-        },
-      })
+      const verification = await verifyAdminAccess(normalizedKey)
 
-      if (response.ok) {
+      if (verification.ok) {
+        setAdminKey(normalizedKey)
         toast({
           title: "Success!",
           description: "Welcome to the admin dashboard.",
         })
-        router.push("/admin-dash/posts")
+        router.replace("/admin-dash/posts")
       } else {
-        setError("Invalid admin key. Please try again.")
-        setIsLoading(false)
+        clearAdminKey()
+        setError(verification.unauthorized ? "Invalid admin key. Please try again." : verification.error || "Could not verify admin key.")
       }
     } catch (err) {
       console.error("[v0] Admin login error:", err)
       setError("An error occurred during login. Please try again.")
+      clearAdminKey()
+    } finally {
       setIsLoading(false)
     }
   }

@@ -338,7 +338,30 @@ export async function submitMemberRequest(input: Omit<MemberRequest, 'id' | 'sta
 
 export type MemberRequestStatus = 'pending' | 'approved' | 'rejected' | 'all'
 
-export async function getAllMemberRequests(params?: { status?: MemberRequestStatus; page?: number; pageSize?: number }): Promise<{ ok: boolean; total: number; page: number; pageSize: number; requests: MemberRequest[] }> {
+export async function verifyAdminAccess(keyOverride?: string): Promise<{ ok: boolean; unauthorized: boolean; error?: string }> {
+  try {
+    const token = (keyOverride ?? getAdminKey() ?? "").trim()
+    if (!token) return { ok: false, unauthorized: true, error: "Admin key missing" }
+
+    const res = await fetch(`${API_BASE}/get_all_member_reqs?status=pending&page=1&pageSize=1`, {
+      cache: 'no-store',
+      headers: { 'x-admin-key': token },
+    })
+
+    if (res.ok) return { ok: true, unauthorized: false }
+    if (res.status === 401 || res.status === 403) {
+      return { ok: false, unauthorized: true, error: "Invalid admin key" }
+    }
+
+    const data = await res.json().catch(() => null)
+    return { ok: false, unauthorized: false, error: data?.error || 'Failed to verify admin key' }
+  } catch (e) {
+    console.error('[v0] Error verifying admin access:', e)
+    return { ok: false, unauthorized: false, error: 'Network error' }
+  }
+}
+
+export async function getAllMemberRequests(params?: { status?: MemberRequestStatus; page?: number; pageSize?: number }): Promise<{ ok: boolean; total: number; page: number; pageSize: number; requests: MemberRequest[]; unauthorized?: boolean; error?: string }> {
   const token = getAdminKey()
   const headers = new Headers()
   if (token) headers.append('x-admin-key', token)
@@ -349,10 +372,13 @@ export async function getAllMemberRequests(params?: { status?: MemberRequestStat
   const url = `${API_BASE}/get_all_member_reqs${query.toString() ? `?${query}` : ''}`
   try {
     const res = await fetch(url, { cache: 'no-store', headers })
-    if (res.status === 403) {
-      return { ok: false, total: 0, page: 1, pageSize: 20, requests: [] }
+    if (res.status === 401 || res.status === 403) {
+      return { ok: false, total: 0, page: 1, pageSize: 20, requests: [], unauthorized: true, error: 'Admin access required' }
     }
-    if (!res.ok) throw new Error('Failed to fetch member requests')
+    if (!res.ok) {
+      const data = await res.json().catch(() => null)
+      return { ok: false, total: 0, page: 1, pageSize: 20, requests: [], error: data?.error || 'Failed to fetch member requests' }
+    }
     const data = await res.json()
     const requests = (data.requests || []).map((request: MemberRequest) => ({
       ...request,
@@ -364,7 +390,7 @@ export async function getAllMemberRequests(params?: { status?: MemberRequestStat
     return { ok: true, ...data, requests };
   } catch (e) {
     console.error('[v0] Error fetching member requests:', e)
-    return { ok: false, total: 0, page: 1, pageSize: 20, requests: [] }
+    return { ok: false, total: 0, page: 1, pageSize: 20, requests: [], error: 'Network error' }
   }
 }
 

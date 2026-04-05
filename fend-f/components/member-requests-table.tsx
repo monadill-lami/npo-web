@@ -39,10 +39,15 @@ export function MemberRequestsTable({ status = 'pending', requests: initial }: M
       if (cancelled) return
       if (res.ok) setRequests(res.requests)
       else {
-        toast({ title: 'Admin access required', description: 'Please log in again.', variant: 'destructive' })
-        const { clearAdminKey } = await import("@/lib/admin-auth")
-        clearAdminKey()
-        window.location.href = "/admin-dash"
+        if (res.unauthorized) {
+          toast({ title: 'Admin access required', description: 'Please log in again.', variant: 'destructive' })
+          const { clearAdminKey } = await import("@/lib/admin-auth")
+          clearAdminKey()
+          window.location.href = "/admin-dash"
+          return
+        }
+
+        toast({ title: 'Could not load requests', description: res.error || 'Please try again in a moment.', variant: 'destructive' })
       }
     }
     load()
