@@ -135,7 +135,7 @@ export function DonateForm() {
             <h2 className="text-2xl font-bold text-[#1E3A8A]">Make a Difference Today</h2>
             <p className="text-[#1D4ED8] leading-relaxed">
               Your generosity empowers future leaders. Send funds via bKash/Nagad to{" "}
-              <span className="font-semibold">01234567890</span>, then record your donation below.
+              <span className="font-semibold">01538382908</span>, then record your donation below.
             </p>
           </div>
 
