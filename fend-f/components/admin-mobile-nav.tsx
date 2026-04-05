@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
-import { FileText, PlusCircle, DollarSign, LogOut, Users, ClipboardList, Menu } from "lucide-react"
+import { FileText, PlusCircle, DollarSign, LogOut, Users, ClipboardList, Menu, MessageSquareQuote } from "lucide-react"
 import { clearAdminKey } from "@/lib/admin-auth"
 import { useToast } from "@/hooks/use-toast"
 import { useState } from "react"
@@ -21,6 +21,7 @@ export function AdminMobileNav() {
     { href: "/admin-dash/requests", label: "Requests", icon: ClipboardList },
     { href: "/admin-dash/create", label: "Create Post", icon: PlusCircle },
     { href: "/admin-dash/transactions", label: "Transactions", icon: DollarSign },
+    { href: "/admin-dash/leader-message", label: "Leader Message", icon: MessageSquareQuote },
   ]
 
   const handleLogout = () => {

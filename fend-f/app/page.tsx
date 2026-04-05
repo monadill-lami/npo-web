@@ -3,6 +3,7 @@ import { PostsCarousel } from "@/components/posts-carousel"
 import { HeroesSection } from "@/components/heroes-section"
 import { AboutSection } from "@/components/about-section"
 import { CTASection } from "@/components/cta-section"
+import { MessageFromLeaderSection } from "@/components/message-from-leader-section"
 import { getAllPosts } from "@/lib/api"
 
 export default async function HomePage() {
@@ -15,6 +16,7 @@ export default async function HomePage() {
       <HeroesSection />
       <AboutSection />
       <CTASection />
+      <MessageFromLeaderSection />
     </div>
   )
 }

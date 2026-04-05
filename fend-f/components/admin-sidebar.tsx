@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { FileText, PlusCircle, DollarSign, LogOut, Users, ClipboardList } from "lucide-react"
+import { FileText, PlusCircle, DollarSign, LogOut, Users, ClipboardList, MessageSquareQuote } from "lucide-react"
 import { clearAdminKey } from "@/lib/admin-auth"
 import { useToast } from "@/hooks/use-toast"
 
@@ -46,6 +46,11 @@ export function AdminSidebar() {
       href: "/admin-dash/transactions",
       label: "Transactions",
       icon: DollarSign,
+    },
+    {
+      href: "/admin-dash/leader-message",
+      label: "Leader Message",
+      icon: MessageSquareQuote,
     },
   ]
 

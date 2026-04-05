@@ -1,12 +1,14 @@
 // API utility functions for FLABD
 import { getAdminKey } from "./admin-auth"
 
-export const API_BASE = "http://localhost:3000/api"
-const API_BASE_CLIENT = "/api"
-export const SERVER_BASE_URL = "http://localhost:3000"
+const envApiBase = process.env.NEXT_PUBLIC_API_BASE?.trim()
 
-// export const API_BASE =
-//   typeof window === "undefined" ? API_BASE_SERVER : API_BASE_CLIENT
+export const API_BASE = (envApiBase && envApiBase.length > 0 ? envApiBase : "http://localhost:3000/api").replace(/\/$/, "")
+
+export const SERVER_BASE_URL = (process.env.NEXT_PUBLIC_SERVER_BASE_URL?.trim() || API_BASE.replace(/\/api$/, "")).replace(
+  /\/$/,
+  "",
+)
 
 export interface Post {
   id: string
@@ -93,6 +95,15 @@ export interface OfficialMember {
   updatedAt: string
 }
 
+export interface LeaderMessage {
+  message: string
+  presidentName: string
+  presidentDesignation: string
+  imageUrl?: string
+  imagePath?: string
+  updatedAt?: string
+}
+
 // Normalize image URLs to absolute paths
 function normalizeImageUrl(url: string | undefined): string | undefined {
   if (!url) return undefined;
@@ -125,6 +136,26 @@ export async function getAllPosts(): Promise<Post[]> {
   } catch (error) {
     console.error("[v0] Error fetching posts:", error)
     return []
+  }
+}
+
+export async function getLeaderMessage(): Promise<LeaderMessage | null> {
+  try {
+    const res = await fetch(`${API_BASE}/get_leader_message`, {
+      cache: "no-store",
+    })
+    if (!res.ok) throw new Error("Failed to fetch leader message")
+    const data = await res.json()
+    const leaderMessage = data?.leaderMessage
+    if (!leaderMessage) return null
+
+    return {
+      ...leaderMessage,
+      imageUrl: normalizeImageUrl(leaderMessage.imageUrl || leaderMessage.imagePath),
+    }
+  } catch (error) {
+    console.error("[v0] Error fetching leader message:", error)
+    return null
   }
 }
 
@@ -483,5 +514,39 @@ export async function deleteMemberById(id: string): Promise<{ ok: boolean; error
   } catch (e) {
     console.error('[v0] Error deleting member:', e)
     return { ok: false, error: 'Network error' }
+  }
+}
+
+export async function updateLeaderMessage(formData: FormData): Promise<{ ok: boolean; error?: string; leaderMessage?: LeaderMessage }> {
+  try {
+    const token = getAdminKey()
+    if (!token) return { ok: false, error: "Admin access required" }
+
+    const headers = new Headers()
+    headers.append("x-admin-key", token)
+
+    const res = await fetch(`${API_BASE}/update_leader_message`, {
+      method: "PATCH",
+      headers,
+      body: formData,
+    })
+
+    const data = await res.json()
+    if (!res.ok) {
+      return { ok: false, error: data?.error || "Failed to update leader message" }
+    }
+
+    return {
+      ok: true,
+      leaderMessage: data?.leaderMessage
+        ? {
+            ...data.leaderMessage,
+            imageUrl: normalizeImageUrl(data.leaderMessage.imageUrl || data.leaderMessage.imagePath),
+          }
+        : undefined,
+    }
+  } catch (error) {
+    console.error("[v0] Error updating leader message:", error)
+    return { ok: false, error: "Network error" }
   }
 }

@@ -11,6 +11,18 @@ export function HeroSection() {
   const [totalRaised, setTotalRaised] = useState(0)
   const [displayAmount, setDisplayAmount] = useState(0)
 
+  const scrollToNextSection = () => {
+    const heroSection = document.getElementById("home-hero")
+    const nextSection = heroSection?.nextElementSibling
+
+    if (nextSection instanceof HTMLElement) {
+      nextSection.scrollIntoView({ behavior: "smooth", block: "start" })
+      return
+    }
+
+    window.scrollTo({ top: window.innerHeight, behavior: "smooth" })
+  }
+
   useEffect(() => {
     // Fetch total raised amount
     getTotalRaised().then((amount) => {
@@ -50,7 +62,10 @@ export function HeroSection() {
   }, [totalRaised])
 
   return (
-    <section className="relative h-screen flex items-center justify-center overflow-hidden">
+    <section
+      id="home-hero"
+      className="relative min-h-screen flex items-start justify-center overflow-hidden pt-24 pb-12 md:items-center md:pt-0 md:pb-0"
+    >
       {/* Animated gradient and geometric patterns */}
       <div className="absolute inset-0 z-0">
         {/* Animated gradient background */}
@@ -78,7 +93,7 @@ export function HeroSection() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto space-y-8">
+      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto space-y-6 md:space-y-8">
         <div className="space-y-4 animate-fade-in">
           <div className="flex justify-center mb-4">
             <Image
@@ -86,28 +101,28 @@ export function HeroSection() {
               alt="FLABD Logo"
               width={128}
               height={128}
-              className="h-24 w-24 rounded-full object-cover md:h-32 md:w-32"
+              className="h-28 w-28 rounded-full object-cover md:h-40 md:w-40 lg:h-48 lg:w-48"
             />
           </div>
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-6 py-2 mb-4">
             <Sparkles className="w-4 h-4 text-primary" />
             <span className="text-primary text-sm font-semibold">Empowering Future Leaders</span>
           </div>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight bg-gradient-to-r from-white via-secondary to-primary bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight bg-gradient-to-r from-white via-secondary to-primary bg-clip-text text-transparent">
             Future Leaders Assembly Bangladesh
           </h1>
           <p className="text-2xl md:text-3xl text-primary font-semibold">FLABD</p>
         </div>
 
         {/* Tagline */}
-        <p className="text-xl md:text-2xl text-muted-foreground italic font-light animate-fade-in-delay">
+        <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground italic font-light animate-fade-in-delay">
           Empowering our community to lead tomorrow's change
         </p>
 
         <div className="inline-block animate-fade-in-delay-2">
           <div className="relative group">
             <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity animate-glow" />
-            <div className="relative bg-gradient-to-r from-primary to-secondary text-background px-8 py-4 rounded-2xl shadow-2xl font-bold text-lg md:text-xl flex items-center gap-3">
+            <div className="relative bg-gradient-to-r from-primary to-secondary text-background px-8 py-4 rounded-2xl shadow-2xl font-bold text-base sm:text-lg md:text-xl flex items-center gap-3">
               <TrendingUp className="w-6 h-6" />
               <span>Total Raised: ৳ {displayAmount.toLocaleString()} BDT</span>
             </div>
@@ -145,9 +160,14 @@ export function HeroSection() {
       </div>
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
+      <button
+        type="button"
+        onClick={scrollToNextSection}
+        aria-label="Scroll to next section"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce hidden md:block cursor-pointer"
+      >
         <ChevronDown className="w-8 h-8 text-primary" />
-      </div>
+      </button>
     </section>
   )
 }

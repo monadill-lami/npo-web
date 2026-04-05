@@ -30,7 +30,7 @@ export function Footer() {
               <X className="w-6 h-6" />
             </Link>
             <Link
-              href="https://www.instagram.com/_flabd"
+              href="https://www.instagram.com/_flabd_"
               target="_blank"
               rel="noopener noreferrer"
               className="text-secondary hover:text-primary transition-all duration-200 hover:scale-110"
